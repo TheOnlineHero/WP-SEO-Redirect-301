@@ -8,7 +8,7 @@ Installation:
 1) Install WordPress 3.4.2 or higher
 
 2) Download the following file:
-https://github.com/TheOnlineHero/WP-Source-Control/zipball/master
+https://github.com/TheOnlineHero/WP-SEO-Redirect-301/zipball/master
 
 3) Login to WordPress admin, click on Plugins / Add New / Upload, then upload the zip file you just downloaded.
 
