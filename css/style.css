@@ -1,0 +1,14 @@
+.postbox a.delete, .postbox td.delete a.delete {
+	background: url(../images/trash.png) no-repeat;
+	display: block;
+	text-indent: -1000em;
+	width: 17px;
+	height: 17px;
+}
+.postbox a.edit, .postbox td.edit a {
+	background: url(../images/edit.png) no-repeat;
+	display: block;
+	text-indent: -1000em;
+	width: 17px;
+	height: 17px;
+}
