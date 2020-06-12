@@ -2,8 +2,8 @@
 Contributors: MMDeveloper, The Marketing Mix Osborne Park Perth
 Tags: seo, redirect, 301, slug
 Requires at least: 3.0.1
-Tested up to: 4.1
-Stable tag: 2.0.6
+Tested up to: 5.4
+Stable tag: 2.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Built by The Marketing Mix Perth: http://www.marketingmix.com.au
 
 == Installation ==
 
-1) Install WordPress 4.0 or higher
+1) Install WordPress 5.4 or higher
 
 2) Download the latest from:
 
@@ -41,6 +41,42 @@ Built by The Marketing Mix Perth: http://www.marketingmix.com.au
 
 
 == Changelog ==
+
+= 2.2.3 =
+
+* Fix issue with debug=true.
+
+= 2.2.2 =
+
+* Bug fix for DISABLE_301_SITEMAP, if job is still running, this still executes. Now this is fixed.
+
+= 2.2.1 =
+
+* Fixed issue with https urls.
+
+= 2.2.0 = 
+
+* You can now add define('DISABLE_301_SITEMAP', 'true'); to wp-config.php to disable the 301-sitemap.xml file.
+
+= 2.1.1 =
+
+* Improved code found by WordPress.
+
+= 2.1.0 =
+
+* Fixed vulnerability with delete function found by WordPress.
+
+= 2.0.9 =
+
+* Fixed bug with query string urls.
+
+= 2.0.8 =
+
+* Fixed bug with search results page.
+
+= 2.0.7 =
+
+* Sometimes the new url does not exist, especially if it was deleted. So to account for this, send user to home page.
 
 = 2.0.6 =
 
@@ -148,6 +184,42 @@ Built by The Marketing Mix Perth: http://www.marketingmix.com.au
 
 
 == Upgrade notice ==
+
+= 2.2.3 =
+
+* Fix issue with debug=true.
+
+= 2.2.2 =
+
+* Bug fix for DISABLE_301_SITEMAP, if job is still running, this still executes. Now this is fixed.
+
+= 2.2.1 =
+
+* Fixed issue with https urls.
+
+= 2.2.0 = 
+
+* You can now add define('DISABLE_301_SITEMAP', 'true'); to wp-config.php to disable the 301-sitemap.xml file.
+
+= 2.1.1 =
+
+* Improved code found by WordPress.
+
+= 2.1.0 =
+
+* Fixed vulnerability with delete function found by WordPress.
+
+= 2.0.9 =
+
+* Fixed bug with query string urls.
+
+= 2.0.8 =
+
+* Fixed bug with search results page.
+
+= 2.0.7 =
+
+* Sometimes the new url does not exist, especially if it was deleted. So to account for this, send user to home page.
 
 = 2.0.6 =
 

@@ -1,9 +1,16 @@
 <?php 
+
+if ( ! defined( 'ABSPATH' ) ) exit; 
+
 if (isset($_GET["delete_id"])) {
-  TomM8::delete_record("slug_history", "post_id=".$_GET["delete_id"]." AND url='".$_GET["delete_url"]."'");
-  wp_redirect("".get_option("siteurl")."/wp-admin/admin.php?page=wp-seo-redirect-301/seo_redirect_list.php", 200);
+  // TomM8::delete_record("slug_history", "post_id=".$_GET["delete_id"]." AND url='".$_GET["delete_url"]."'");
+  global $wpdb;
+  $wpdb->delete($wpdb->prefix."slug_history", array("post_id" => sanitize_text_field($_GET["delete_id"]), "url" => esc_url($_GET["delete_url"])),  array('%d','%s')); 
+  admin_url("admin.php?page=wp-seo-redirect-301/seo_redirect_list.php", 200);
 }
-$my_redirects = TomM8::get_results("slug_history", "*", "");
+
+$abcTom = new TomM8();
+$my_redirects = $abcTom->get_results("slug_history", "*", "");
 
 wp_enqueue_script('jquery');
 
@@ -48,4 +55,4 @@ wp_enqueue_script('jquery');
 </div>
 </div>
 
-<?php TomM8::add_social_share_links("http://wordpress.org/extend/plugins/wp-seo-redirect-301"); ?>
+<?php $abcTom->add_social_share_links("http://wordpress.org/extend/plugins/wp-seo-redirect-301"); ?>

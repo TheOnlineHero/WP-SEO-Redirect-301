@@ -74,7 +74,7 @@ if (!class_exists("TomM8")) {
     // Return current url.
     function get_current_url() {
       $pageURL = 'http';
-      if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+      if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
       $pageURL .= "://";
       if ($_SERVER["SERVER_PORT"] != "80") {
         $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
@@ -120,9 +120,9 @@ if (!class_exists("TomM8")) {
     function get_query_string_value($name, $index = -1) {
       if ($index == -1) {
         if (isset($_POST[$name])) {
-          return TomM8::fix_http_quotes($_POST[$name]);
+          return $this->fix_http_quotes($_POST[$name]);
         } else if (isset($_GET[$name])) {
-          return TomM8::fix_http_quotes($_GET[$name]);
+          return $this->fix_http_quotes($_GET[$name]);
         } else if (isset($_POST[$name."_0"])) {
             $i = 0;
             $data = "";
@@ -133,17 +133,17 @@ if (!class_exists("TomM8")) {
               }
               $i++;
             } while (isset($_POST[$name."_".$i]));
-            $_POST[$name] = TomM8::fix_http_quotes($data);
-            return TomM8::fix_http_quotes($data);
+            $_POST[$name] = $this->fix_http_quotes($data);
+            return $this->fix_http_quotes($data);
         } else {
           return "";
         }
       } else {
         $name = str_replace("[]", "", $name);
         if (isset($_POST[$name][$index])) {
-          return TomM8::fix_http_quotes($_POST[$name][$index]);
+          return $this->fix_http_quotes($_POST[$name][$index]);
         } else if (isset($_GET[$name][$index])) {
-          return TomM8::fix_http_quotes($_GET[$name][$index]);
+          return $this->fix_http_quotes($_GET[$name][$index]);
         } else if (isset($_POST[$name."_0"][$index])) {
             $i = 0;
             $data = "";
@@ -154,8 +154,8 @@ if (!class_exists("TomM8")) {
               }
               $i++;
             } while (isset($_POST[$name."_".$i][$index]));
-            $_POST[$name][$index] = TomM8::fix_http_quotes($data);
-            return TomM8::fix_http_quotes($data);
+            $_POST[$name][$index] = $this->fix_http_quotes($data);
+            return $this->fix_http_quotes($data);
         } else {
           return "";
         }
@@ -223,7 +223,7 @@ if (!class_exists("TomM8")) {
             $attach_data = wp_generate_attachment_metadata( $attach_id, $filedest );
             wp_update_attachment_metadata( $attach_id,  $attach_data );
             preg_match("/\/wp-content(.+)$/", $filedest, $matches, PREG_OFFSET_CAPTURE);
-            TomM8::update_record_by_id("posts", array("guid" => get_option("siteurl").$matches[0][0]), "ID", $attach_id);
+            $this->update_record_by_id("posts", array("guid" => get_option("siteurl").$matches[0][0]), "ID", $attach_id);
             // echo $filedest;
           }
         }   
@@ -369,12 +369,12 @@ if (!class_exists("TomM8")) {
         // If filter enabled, add extra filter conditions to existing datatable.
         $extra_where = array();
         if (count($filter_arrays) > 0) {
-          if (TomM8::get_query_string_value($table_name."_filters") != "") {
-            $filters = explode(",", TomM8::get_query_string_value($table_name."_filters"));
+          if ($this->get_query_string_value($table_name."_filters") != "") {
+            $filters = explode(",", $this->get_query_string_value($table_name."_filters"));
             foreach ($filters as $filter) {
-              if (TomM8::get_query_string_value("filter_".$filter) != "") {
+              if ($this->get_query_string_value("filter_".$filter) != "") {
                 if (!(isset($_POST["action"]) && $_POST["action"] == "Reset")) {
-                  array_push($extra_where, $filter." LIKE '%".TomM8::get_query_string_value("filter_".$filter)."%'");  
+                  array_push($extra_where, $filter." LIKE '%".$this->get_query_string_value("filter_".$filter)."%'");  
                 }
               }
             }
@@ -392,9 +392,9 @@ if (!class_exists("TomM8")) {
           }
         }
 
-        $results = TomM8::get_results($table_name, $fields_array, $where_clause, $order_array, $limit_clause.$offset_clause);
+        $results = $this->get_results($table_name, $fields_array, $where_clause, $order_array, $limit_clause.$offset_clause);
         
-        $total_count = count(TomM8::get_results($table_name, $fields_array, $where_clause));
+        $total_count = count($this->get_results($table_name, $fields_array, $where_clause));
 
         echo("<div class=\"postbox\" style=\"display: block; \"><div class=\"inside\">");
         
@@ -409,14 +409,14 @@ if (!class_exists("TomM8")) {
                 $params_filter = "";
                 foreach($filter_arrays as $filter_array) { 
                   foreach($filter_array as $key => $value) { 
-                    if (TomM8::get_query_string_value("filter_".$key) != "") {
+                    if ($this->get_query_string_value("filter_".$key) != "") {
                       if (isset($_POST["action"]) && $_POST["action"] == "Reset") {
                         $_POST["filter_".$key] = "";
                       }
-                      $params_filter .= "&filter_".$key."=".TomM8::get_query_string_value("filter_".$key);
+                      $params_filter .= "&filter_".$key."=".$this->get_query_string_value("filter_".$key);
                     }
                     array_push($filters, $key);
-                    TomM8::add_form_field(null, $value["type"], titlize_str($key), "filter_".$key, "filter_".$key, array(), "p", array(), $value["value_options"]);
+                    $this->add_form_field(null, $value["type"], titlize_str($key), "filter_".$key, "filter_".$key, array(), "p", array(), $value["value_options"]);
                   }
                 } 
                 ?>
@@ -430,7 +430,7 @@ if (!class_exists("TomM8")) {
           <?php
         }
         if (count($results) > 0) { 
-          if ($paginate_table) { TomM8::generate_datatable_pagination($table_name, $total_count, $limit_clause, $page_no, $page_name, $order_direction, "top"); } ?>
+          if ($paginate_table) { $this->generate_datatable_pagination($table_name, $total_count, $limit_clause, $page_no, $page_name, $order_direction, "top"); } ?>
             <table class="data">
               <thead>
                 <tr>
@@ -444,7 +444,7 @@ if (!class_exists("TomM8")) {
                         ?>
                         <a href='<?php echo($page_name); ?>&<?php echo($table_name); ?>_order_by=<?php echo($field_name); ?>&<?php echo($table_name); ?>_order_direction=<?php echo($change_order_direction); ?>&<?php echo($table_name."_page"); ?>=<?php echo($page_no); ?>&<?php echo($table_name); ?>_filters=<?php echo(implode(",", $filters)); echo($params_filter); ?>'>
                       <?php } ?>
-                      <?php echo(TomM8::titlize_str($field_name)); ?>
+                      <?php echo($this->titlize_str($field_name)); ?>
                       <?php if ($sortable_columns) {
                         if ($_GET[$table_name."_order_by"] == $field_name) {
                           if ($order_direction == "ASC") {
@@ -467,7 +467,7 @@ if (!class_exists("TomM8")) {
                     <?php foreach($fields_array as $field_name) { ?>
                       <td class='<?php echo(esc_html(strtolower(str_replace("_", "-", $field_name)))); ?>'>
                         <?php 
-                          if (TomM8::is_valid_datetime($result->$field_name)) {
+                          if ($this->is_valid_datetime($result->$field_name)) {
                             echo(date($date_format, strtotime($result->$field_name )));
                           } else {
                             echo($result->$field_name);
@@ -488,7 +488,7 @@ if (!class_exists("TomM8")) {
 
               </tbody>
             </table>
-            <?php if ($paginate_table) { TomM8::generate_datatable_pagination($table_name, $total_count, $limit_clause, $page_no, $page_name, $order_direction, "bottom"); } ?>
+            <?php if ($paginate_table) { $this->generate_datatable_pagination($table_name, $total_count, $limit_clause, $page_no, $page_name, $order_direction, "bottom"); } ?>
         <?php } else {
 
           if (count($filter_arrays) > 0) {
@@ -510,11 +510,11 @@ if (!class_exists("TomM8")) {
       } 
       $total_number_pages = intval($total_count / $limit_clause);
         $params_filter = "";
-        $filters = explode(",", TomM8::get_query_string_value($table_name."_filters"));
-        $params_filter .= "&".$table_name."_filters=".TomM8::get_query_string_value($table_name."_filters");
+        $filters = explode(",", $this->get_query_string_value($table_name."_filters"));
+        $params_filter .= "&".$table_name."_filters=".$this->get_query_string_value($table_name."_filters");
         foreach ($filters as $filter) {
-          if (TomM8::get_query_string_value("filter_".$filter) != "") {
-            $params_filter .= "&filter_".$filter."=".TomM8::get_query_string_value("filter_".$filter);
+          if ($this->get_query_string_value("filter_".$filter) != "") {
+            $params_filter .= "&filter_".$filter."=".$this->get_query_string_value("filter_".$filter);
           }
         }
 
@@ -551,7 +551,7 @@ if (!class_exists("TomM8")) {
       if (!is_array($fields_array)) {
         echo("Fields Array, can only accept an array of field names.");
       } else {
-        $result = TomM8::get_row_by_id($table_name, $fields_array, $id_column_name, $id);
+        $result = $this->get_row_by_id($table_name, $fields_array, $id_column_name, $id);
         echo("<dl>");
         foreach($fields_array as $field) { 
           echo("<dt>".ucwords(esc_html(str_replace("_", " ", $field)))."</dt><dd>".esc_html($result->$field)."</dd>");
@@ -622,7 +622,7 @@ if (!class_exists("TomM8")) {
         }
 
         if (preg_match("/date | date|^date$/i", $validation)) {
-          if (!TomM8::is_valid_datetime($value)) {
+          if (!$this->is_valid_datetime($value)) {
             if (!preg_match("/must be a date/", $_SESSION[$error_session_name])) {
               $_SESSION[$error_session_name] .= " must be a date. ";
             }
@@ -631,7 +631,7 @@ if (!class_exists("TomM8")) {
         }
 
         if (preg_match("/email | email|^email$/i", $validation)) {
-          if (!TomM8::is_valid_email($value)) {
+          if (!$this->is_valid_email($value)) {
             if (!preg_match("/must be a valid email address/", $_SESSION[$error_session_name])) {
               $_SESSION[$error_session_name] .= " must be a valid email address. ";
             }
@@ -640,7 +640,7 @@ if (!class_exists("TomM8")) {
         }
 
         if (preg_match("/multi-emails | multi-emails|^multi-emails$/i", $validation)) {
-          if (!TomM8::is_valid_emails($value)) {
+          if (!$this->is_valid_emails($value)) {
             if (!preg_match("/must have valid email addressess, separated by commas/", $_SESSION[$error_session_name])) {
               $_SESSION[$error_session_name] .= " must have valid email addressess, separated by commas. ";
             }
@@ -656,10 +656,10 @@ if (!class_exists("TomM8")) {
     function validate_form($validations_array) {
       $validate_form = true;
       foreach ($validations_array as $key => $value) {
-        if (is_array(TomM8::get_query_string_value($key))) {
+        if (is_array($this->get_query_string_value($key))) {
           $index = 0;
-          foreach (TomM8::get_query_string_value($key) as $sub_value) {
-            if (TomM8::validate_value($value, $sub_value, $key."_".$index."_error") == false) {
+          foreach ($this->get_query_string_value($key) as $sub_value) {
+            if ($this->validate_value($value, $sub_value, $key."_".$index."_error") == false) {
               $validate_form = false;
             }
             $index++;
@@ -667,7 +667,7 @@ if (!class_exists("TomM8")) {
         } else {
           if (preg_match("/required/i", $value) && isset($_POST[$key."_0"])) {
 
-            if (is_array(TomM8::get_query_string_value($key."_0"))) {
+            if (is_array($this->get_query_string_value($key."_0"))) {
               // For checkbox fields.
               $index = 0;
               foreach ($_POST["validation_0"] as $row) {
@@ -682,7 +682,7 @@ if (!class_exists("TomM8")) {
                   $i++;
                 } while (isset($_POST[$key."_".$i][$index]));
                 
-                if (TomM8::validate_value($value, $data, $key."_".$index."_error") == false) {
+                if ($this->validate_value($value, $data, $key."_".$index."_error") == false) {
                   echo $index;
                   $validate_form = false;
                 }
@@ -699,12 +699,12 @@ if (!class_exists("TomM8")) {
                 }
                 $i++;
               } while (isset($_POST[$key."_".$i]));
-              if (TomM8::validate_value($value, $data, $key."_error") == false) {
+              if ($this->validate_value($value, $data, $key."_error") == false) {
                 $validate_form = false;
               }
             }
           } else {
-            if (TomM8::validate_value($value, TomM8::get_query_string_value($key), $key."_error") == false) {
+            if ($this->validate_value($value, $this->get_query_string_value($key), $key."_error") == false) {
               $validate_form = false;
             }
           }
@@ -741,18 +741,18 @@ if (!class_exists("TomM8")) {
         $field_value = get_option($field_name);
         if (count($_POST) > 0) {
           if ($field_index >= 0) {
-            $field_value = TomM8::get_query_string_value($field_name, $field_index);
+            $field_value = $this->get_query_string_value($field_name, $field_index);
           } else {
-            $field_value = TomM8::get_query_string_value($field_name);
+            $field_value = $this->get_query_string_value($field_name);
           }
         }
       } else {
         $field_value = $instance->$field_name;
         if ($instance == null || count($_POST) > 0) {
           if ($field_index >= 0) {
-            $field_value = TomM8::get_query_string_value($field_name, $field_index);
+            $field_value = $this->get_query_string_value($field_name, $field_index);
           } else {
-            $field_value = TomM8::get_query_string_value($field_name);
+            $field_value = $this->get_query_string_value($field_name);
           }
         }
       }
@@ -843,7 +843,7 @@ if (!class_exists("TomM8")) {
           foreach($value_options as $key => $option) {
             echo("<li><input type='hidden' name='".$field_name."_".$i.$field_checkbox_array."' value='' />");
 
-            $field_value = TomM8::get_query_string_value($field_name."_".$i, $field_index);
+            $field_value = $this->get_query_string_value($field_name."_".$i, $field_index);
             $field_value = str_replace("&amp;", "&", htmlentities(htmlentities($field_value, ENT_NOQUOTES), ENT_QUOTES));
             $checked_value = "";
             if (count($_POST) == 0) {
@@ -880,7 +880,7 @@ if (!class_exists("TomM8")) {
     // Adds a form field to the page. Only difference is the value is from the Wordpress get_option database table. Example get_option("siteurl").
     function add_option_form_field($field_type, $field_label, $field_id, $option_name, $field_attributes = array(), $container_element, $container_attributes = array(), $value_options = array(), $field_index = -1) {
 
-      TomM8::add_form_field(null, $field_type, $field_label, $field_id, "tomm8te_admin_option::".$option_name, $field_attributes, $container_element, $container_attributes, $value_options, $field_index);
+      $this->add_form_field(null, $field_type, $field_label, $field_id, "tomm8te_admin_option::".$option_name, $field_attributes, $container_element, $container_attributes, $value_options, $field_index);
     }
 
     // Creates the option in the database if it doesn't exist. For example: create_option_if_not_exist("plugin_version_no").
@@ -1030,10 +1030,13 @@ if (!class_exists("TomM8")) {
       }
     }
 
+
     // Deletes a record from the database. Returns a sql delete query object.
     function delete_record_by_id($table_name, $id_column_name, $delete_id) {
       global $wpdb;
       $table_name_prefix = $wpdb->prefix.$table_name;
+      $id_column_name = sanitize_text_field($id_column_name);
+      $delete_id = intval($delete_id);
       return $wpdb->query($wpdb->prepare("DELETE FROM $table_name_prefix WHERE $id_column_name = %d", $delete_id));
     }
 
@@ -1041,6 +1044,7 @@ if (!class_exists("TomM8")) {
     function delete_record($table_name, $where_sql) {
       global $wpdb;
       $table_name_prefix = $wpdb->prefix.$table_name;
+      $where_sql = sanitize_text_field($where_sql);
       return $wpdb->query("DELETE FROM $table_name_prefix WHERE $where_sql");
     }
 
